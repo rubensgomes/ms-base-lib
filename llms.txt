@@ -1,0 +1,47 @@
+# ms-base-lib
+
+> A Java library containing base types to be shared among microservices libraries and applications. Provides standardized status enumerations, comprehensive error handling framework, and foundational components for distributed systems.
+
+This library is designed for Java 21+ microservices architectures and uses modern Java features including records, streams, and the latest Jakarta EE specifications. It follows SOLID principles, Clean Code practices, and provides extensive Javadoc documentation.
+
+## Core Components
+
+- [Status.java](lib/src/main/java/com/rubensgomes/msbaselib/Status.java): Lifecycle status enumeration for request/response operations in microservices. Supports both synchronous and asynchronous processing patterns with states for SUCCESS, FAILURE, PENDING, PROCESSING, COMPLETED, CANCELLED, ERROR, TIMEOUT, and ABORTED.
+
+## Error Handling Framework
+
+- [ApplicationError.java](lib/src/main/java/com/rubensgomes/msbaselib/error/ApplicationError.java): Interface for comprehensive error representation with description, structured error codes, and native diagnostic information.
+- [ApplicationErrorCode.java](lib/src/main/java/com/rubensgomes/msbaselib/error/ApplicationErrorCode.java): Interface for standardized error codes with unique identifiers and human-readable descriptions.
+- [ApplicationErrorImpl.java](lib/src/main/java/com/rubensgomes/msbaselib/error/impl/ApplicationErrorImpl.java): Concrete implementation of ApplicationError with Jakarta Bean Validation support and Lombok annotations.
+- [ApplicationErrorCodeImpl.java](lib/src/main/java/com/rubensgomes/msbaselib/error/impl/ApplicationErrorCodeImpl.java): Enumeration of hierarchically organized error codes categorized as Business Logic (BUSGN###), Payment (PAYGN###), Resource Management (RESGN###), Security (SECGN###), System (SYSGN###), Validation (VALGN###), and Microservice-Specific (XXXMS###) errors.
+
+## Package Documentation
+
+- [com.rubensgomes.msbaselib](lib/src/main/java/com/rubensgomes/msbaselib/package-info.java): Core base types and foundational components
+- [com.rubensgomes.msbaselib.error](lib/src/main/java/com/rubensgomes/msbaselib/error/package-info.java): Error handling and error code management framework
+- [com.rubensgomes.msbaselib.error.impl](lib/src/main/java/com/rubensgomes/msbaselib/error/impl/package-info.java): Concrete implementations of error handling interfaces
+
+## Build and Development
+
+- [build.gradle.kts](lib/build.gradle.kts): Gradle build configuration with Java 21, Lombok, Jakarta EE, Spotless formatting, JUnit 5 testing, and Maven publishing setup.
+- [README.md](README.md): Project overview, basic Gradle commands, build instructions, testing, release workflow, and publishing process.
+
+## Key Features
+
+- Thread-safe, immutable enum-based designs
+- Comprehensive Javadoc documentation for all public APIs
+- Jakarta Bean Validation constraints for data integrity
+- Lombok annotations for boilerplate reduction
+- Integration examples for Spring Framework and Jakarta EE
+- Hierarchical error code naming convention for easy categorization
+- Support for monitoring, observability, and distributed tracing
+- Framework-agnostic design works with Spring, Jakarta EE, or standalone applications
+
+## License
+
+Licensed under the Apache License, Version 2.0. Copyright 2025 Rubens Gomes.
+
+## Optional
+
+- [gradle.properties](gradle.properties): Project properties including group, version, artifact ID, developer information, and repository URLs.
+- [settings.gradle.kts](settings.gradle.kts): Gradle settings for project structure and dependency management.

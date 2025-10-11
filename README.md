@@ -1,7 +1,6 @@
 # ms-base-lib
 
-This is a single library module Gradle project. It implements a Java library containing base types to be shared among
-microservices.
+A Java library containing base types to be shared among other microservices libraries, and microservice applications.
 
 ## Basic Commands
 
