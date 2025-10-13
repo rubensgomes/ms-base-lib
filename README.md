@@ -2,6 +2,10 @@
 
 A Java library containing base types to be shared among other microservices libraries, and microservice applications.
 
+## AI General Disclaimer
+
+For **AI-GENERATED CONTENT**, please refer to [DISCLAIMER](DISCLAIMER.md)
+
 ## Basic Commands
 
 - Display Java Tools Installed
