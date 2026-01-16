@@ -39,7 +39,12 @@ dependencies {
     testRuntimeOnly(libs.junit.platform.launcher)
 }
 
-// ------------------- Idea Plugin -------------------
+// ----------------------------------------------------------------------------
+// --------------- >>> Gradle IDEA Plugin <<< ---------------------------------
+// NOTE: This section is dedicated to configuring the Idea plugin.
+// ----------------------------------------------------------------------------
+// https://docs.gradle.org/current/userguide/idea_plugin.html
+
 idea {
     module {
         isDownloadJavadoc = true
@@ -47,12 +52,17 @@ idea {
     }
 }
 
-// ------------------- Java Plugin -------------------
+// ----------------------------------------------------------------------------
+// --------------- >>> Gradle Java Plugin <<< ---------------------------------
+// NOTE: This section is dedicated to configuring the Java plugin.
+// ----------------------------------------------------------------------------
+// https://docs.gradle.org/current/userguide/java_plugin.html
+
 java {
     withSourcesJar()
     withJavadocJar()
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(25))
         vendor.set(JvmVendorSpec.AMAZON)
     }
 }
@@ -88,7 +98,11 @@ tasks.javadoc {
     }
 }
 
-// ------------------- Maven Publish -------------------
+// ----------------------------------------------------------------------------
+// --------------- >>> Gradle Maven Publish Plugin <<< ------------------------
+// ----------------------------------------------------------------------------
+// https://docs.gradle.org/current/userguide/publishing_maven.html
+
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
@@ -106,7 +120,7 @@ publishing {
             // POM configuration
             pom {
                 name = project.properties["title"] as String
-                inceptionYear = "2025"
+                inceptionYear = "2026"
                 packaging = "jar"
 
                 licenses {
@@ -138,18 +152,17 @@ publishing {
             name = "GitHubPackages"
             url = uri(project.properties["libMavenRepoUrl"] as String)
             credentials {
-                username = System.getenv("MAVEN_REPO_USERNAME")
-                password = System.getenv("MAVEN_REPO_PASSWORD")
+                username = System.getenv("GITHUB_USER")
+                password = System.getenv("GITHUB_TOKEN")
             }
         }
     }
 }
 
-// ------------------- Spotless -------------------
 val licenseHeaderText =
     """
     /*
-     * Copyright 2025 Rubens Gomes
+     * Copyright 2026 Rubens Gomes
      *
      * Licensed under the Apache License, Version 2.0 (the "License");
      * You may not use this file except in compliance with the License.
@@ -164,6 +177,12 @@ val licenseHeaderText =
      * limitations under the License.
      */
     """.trimIndent()
+
+// ----------------------------------------------------------------------------
+// --------------- >>> com.diffplug.spotless Plugin <<< -----------------------
+// NOTE: This section is dedicated to configuring the spotless plugin.
+// ----------------------------------------------------------------------------
+// https://github.com/diffplug/spotless
 
 spotless {
     // Java formatting
@@ -202,19 +221,32 @@ spotless {
     }
 }
 
-// ------------------- JVM Test Suite -------------------
+// ----------------------------------------------------------------------------
+// --------------- >>> Gradle JVM Test Suite Plugin <<< -----------------------
+// NOTE: This section is dedicated to configuring the JVM Test Suite plugin.
+// ----------------------------------------------------------------------------
+// https://docs.gradle.org/current/userguide/jvm_test_suite_plugin.html
+
 tasks.test {
     useJUnitPlatform()
     jvmArgs("-XX:+EnableDynamicAgentLoading")
 }
 
-// ------------------- Release Plugin -------------------
+// ----------------------------------------------------------------------------
+// --------------- >>> net.researchgate.release Plugin <<< --------------------
+// ----------------------------------------------------------------------------
+// https://github.com/researchgate/gradle-release
+
 release {
     with(git) {
         pushReleaseVersionBranch.set("release")
         pushToRemote.set("origin")
         requireBranch.set("main")
     }
+}
+
+tasks.afterReleaseBuild {
+    dependsOn("publish")
 }
 
 // ------------------- Debug Info -----------------------
