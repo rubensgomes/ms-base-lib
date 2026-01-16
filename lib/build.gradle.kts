@@ -150,7 +150,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri(project.properties["libMavenRepoUrl"] as String)
+            url = uri(project.properties["jvmLibsRepoPackages"] as String)
             credentials {
                 username = System.getenv("GITHUB_USER")
                 password = System.getenv("GITHUB_TOKEN")

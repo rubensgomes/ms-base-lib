@@ -57,12 +57,12 @@ dependencyResolutionManagement {
     }
 
     // Fetch GitHub repo URLs directly from settings.extra.properties
-    val versionCatalogMavenRepoUrl = settings.extra.properties["versionCatalogMavenRepoUrl"] as? String
+    val jvmLibsRepoPackages = settings.extra.properties["jvmLibsRepoPackages"] as? String
 
     repositories {
         mavenCentral()
         google()
-        githubRepo(versionCatalogMavenRepoUrl)
+        githubRepo(jvmLibsRepoPackages)
     }
 
     versionCatalogs {
