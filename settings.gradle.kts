@@ -49,8 +49,8 @@ dependencyResolutionManagement {
             maven {
                 setUrl(url)
                 credentials {
-                    username = System.getenv("MAVEN_REPO_USERNAME")
-                    password = System.getenv("MAVEN_REPO_PASSWORD")
+                    username = System.getenv("GITHUB_USER")
+                    password = System.getenv("GITHUB_TOKEN")
                 }
             }
         }
@@ -67,7 +67,7 @@ dependencyResolutionManagement {
 
     versionCatalogs {
         create("libs") {
-            from("com.rubensgomes:gradle-catalog:0.0.13")
+            from("com.rubensgomes:gradle-catalog:0.0.22")
         }
     }
 }
