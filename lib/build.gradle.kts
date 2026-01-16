@@ -240,7 +240,6 @@ tasks.test {
 release {
     with(git) {
         pushReleaseVersionBranch.set("release")
-        pushToRemote.set("origin")
         requireBranch.set("main")
     }
 }

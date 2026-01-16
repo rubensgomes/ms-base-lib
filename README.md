@@ -74,6 +74,13 @@ git push
 ./gradlew --info release
 ```
 
+```bash
+git checkout release
+git pull
+./gradlew --info publish
+git checkout main
+```
+
 ---
 Author:  [Rubens Gomes](https://rubensgomes.com/)
 
