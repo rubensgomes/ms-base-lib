@@ -79,6 +79,22 @@ lib/src/main/java/com/rubensgomes/msbaselib/
   nativeErrorText is mutable
 - **Technology-agnostic**: No Spring/Jakarta EE runtime dependencies required
 
+## CI/CD Pipeline
+
+GitHub Actions workflow (`.github/workflows/release.yml`) automates releases:
+
+- **Trigger**: Pushes to `main` branch
+- **Runner**: `ubuntu-latest`
+- **Java Setup**: Amazon Corretto 25 via `actions/setup-java@v4`
+- **Release Command**: `./gradlew release --info`
+
+**Required Secrets**:
+- `GITHUB_TOKEN` (automatic) - For checkout and Java setup
+- `RUBENS_PAT_TOKEN` - Personal access token for release publishing
+
+**Permissions**: The workflow requires `contents: write` and `packages: write`
+permissions for creating releases and publishing packages.
+
 ## Publishing
 
 Published to GitHub Packages. Requires `GITHUB_USER` and `GITHUB_TOKEN`
