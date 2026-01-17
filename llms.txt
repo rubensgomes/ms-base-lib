@@ -1,47 +1,208 @@
 # ms-base-lib
 
-> A Java library containing base types to be shared among microservices libraries and applications. Provides standardized status enumerations, comprehensive error handling framework, and foundational components for distributed systems.
+> Java library providing foundational base types and standardized components for microservices applications.
 
-This library is designed for Java 21+ microservices architectures and uses modern Java features including records, streams, and the latest Jakarta EE specifications. It follows SOLID principles, Clean Code practices, and provides extensive Javadoc documentation.
+## Overview
+
+ms-base-lib is a technology-agnostic Java library that provides:
+- Standardized status codes for request/response lifecycle management
+- Comprehensive error handling framework with hierarchical error codes
+- Thread-safe, immutable types suitable for concurrent applications
+
+**Package**: `com.rubensgomes.msbaselib`
+**Java Version**: 25 (Amazon Corretto)
+**License**: Apache 2.0
 
 ## Core Components
 
-- [Status.java](lib/src/main/java/com/rubensgomes/msbaselib/Status.java): Lifecycle status enumeration for request/response operations in microservices. Supports both synchronous and asynchronous processing patterns with states for SUCCESS, FAILURE, PENDING, PROCESSING, COMPLETED, CANCELLED, ERROR, TIMEOUT, and ABORTED.
+### Status Enum
+[Status.java](lib/src/main/java/com/rubensgomes/msbaselib/Status.java)
+
+Represents the lifecycle status of operations in microservices. Thread-safe and immutable.
+
+**Values**:
+- `SUCCESS` - Operation completed successfully
+- `FAILURE` - Business logic constraint or validation failure (client error)
+- `PENDING` - Operation queued but not started
+- `PROCESSING` - Operation actively executing
+- `COMPLETED` - Multi-step/long-running process finished
+- `CANCELLED` - Explicitly cancelled by client or admin
+- `ERROR` - System-level failure (server error)
+- `TIMEOUT` - Exceeded time limit
+- `ABORTED` - Critical failure requiring immediate termination
+
+**Key Methods**:
+- `isFinal()` - Returns true if status is terminal (not PENDING/PROCESSING)
+- `isSuccess()` - Returns true for SUCCESS or COMPLETED
+- `isFailure()` - Returns true for FAILURE, ERROR, TIMEOUT, CANCELLED, ABORTED
+- `isInProgress()` - Returns true for PENDING or PROCESSING
 
 ## Error Handling Framework
 
-- [ApplicationError.java](lib/src/main/java/com/rubensgomes/msbaselib/error/ApplicationError.java): Interface for comprehensive error representation with description, structured error codes, and native diagnostic information.
-- [ApplicationErrorCode.java](lib/src/main/java/com/rubensgomes/msbaselib/error/ApplicationErrorCode.java): Interface for standardized error codes with unique identifiers and human-readable descriptions.
-- [ApplicationErrorImpl.java](lib/src/main/java/com/rubensgomes/msbaselib/error/impl/ApplicationErrorImpl.java): Concrete implementation of ApplicationError with Jakarta Bean Validation support and Lombok annotations.
-- [ApplicationErrorCodeImpl.java](lib/src/main/java/com/rubensgomes/msbaselib/error/impl/ApplicationErrorCodeImpl.java): Enumeration of hierarchically organized error codes categorized as Business Logic (BUSGN###), Payment (PAYGN###), Resource Management (RESGN###), Security (SECGN###), System (SYSGN###), Validation (VALGN###), and Microservice-Specific (XXXMS###) errors.
+### ApplicationErrorCode Interface
+[ApplicationErrorCode.java](lib/src/main/java/com/rubensgomes/msbaselib/error/ApplicationErrorCode.java)
+
+Contract for error codes with both machine-readable identifier and human-readable description.
+
+```java
+public interface ApplicationErrorCode {
+    @NotBlank String getCode();
+    @NotBlank String getDescription();
+}
+```
+
+### ApplicationErrorCodeImpl Enum
+[ApplicationErrorCodeImpl.java](lib/src/main/java/com/rubensgomes/msbaselib/error/impl/ApplicationErrorCodeImpl.java)
+
+Pre-defined error codes organized by category:
+
+| Prefix | Category | Description |
+|--------|----------|-------------|
+| BUSGN | Business | Domain-specific rule violations |
+| PAYGN | Payment | Financial transaction errors |
+| RESGN | Resource | Resource access and quota errors |
+| SECGN | Security | Authentication/authorization failures |
+| SYSGN | System | Infrastructure and database errors |
+| VALGN | Validation | Input validation errors |
+| XXXMS | Microservice | Service-specific codes |
+
+**Available Codes**:
+- `BUSINESS_RULE_VIOLATION` (BUSGN001) - Business rule constraint violation
+- `BUSINESS_INVALID_OPERATION_STATE` (BUSGN002) - Invalid operation state
+- `PAYMENT_INSUFFICIENT_FUNDS` (PAYGN001) - Insufficient funds
+- `RESOURCE_NOT_FOUND` (RESGN001) - Resource not found
+- `RESOURCE_UNAVAILABLE` (RESGN002) - Resource temporarily unavailable
+- `RESOURCE_CONFLICT` (RESGN003) - Resource state conflict
+- `RESOURCE_QUOTA_EXCEEDED` (RESGN004) - Usage quota exceeded
+- `RESOURCE_RATE_LIMIT_EXCEEDED` (RESGN005) - Rate limit exceeded
+- `SECURITY_UNAUTHORIZED_ACCESS` (SECGN001) - Authentication required
+- `SECURITY_FORBIDDEN_OPERATION` (SECGN002) - Insufficient permissions
+- `SECURITY_INVALID_CREDENTIALS` (SECGN003) - Invalid credentials
+- `SECURITY_SESSION_EXPIRED` (SECGN004) - Session expired
+- `SYSTEM_INTERNAL_SERVER_ERROR` (SYSGN001) - Unexpected error
+- `SYSTEM_SERVICE_UNAVAILABLE` (SYSGN002) - Service unavailable
+- `SYSTEM_DATABASE_ERROR` (SYSGN003) - Database operation failed
+- `SYSTEM_EXTERNAL_SERVICE_ERROR` (SYSGN004) - External service error
+- `SYSTEM_CONFIGURATION_ERROR` (SYSGN005) - Configuration error
+- `VALIDATION_REQUIRED_FIELD` (VALGN001) - Required field missing
+- `VALIDATION_INVALID_FORMAT` (VALGN002) - Invalid value format
+- `VALIDATION_OUT_OF_RANGE` (VALGN003) - Value outside acceptable range
+- `VALIDATION_DUPLICATE_VALUE` (VALGN004) - Duplicate value
+- `VALIDATION_INVALID_FILE_FORMAT` (VALGN005) - Unsupported file format
+- `VALIDATION_FILE_TOO_LARGE` (VALGN006) - File size exceeds limit
+- `VALIDATION_DATA_CORRUPTION` (VALGN007) - Data corruption detected
+- `USERMGR_MS_ACCOUNT_EXISTS` (USRMS001) - User account already exists
+
+### ApplicationError Interface
+[ApplicationError.java](lib/src/main/java/com/rubensgomes/msbaselib/error/ApplicationError.java)
+
+Contract for error objects with description, code, and optional native error text.
+
+```java
+public interface ApplicationError {
+    @NotBlank String getErrorDescription();
+    @NotNull ApplicationErrorCode getErrorCode();
+    @Nullable String getNativeErrorText();
+    void setNativeErrorText(@NotBlank String nativeErrorText);
+}
+```
+
+### ApplicationErrorImpl Class
+[ApplicationErrorImpl.java](lib/src/main/java/com/rubensgomes/msbaselib/error/impl/ApplicationErrorImpl.java)
+
+Concrete implementation using Lombok `@Data`. Core fields (errorDescription, errorCode) are immutable; nativeErrorText is mutable for adding diagnostic info after construction.
+
+## Usage Examples
+
+### Synchronous Operation
+```java
+public BaseResponse processPayment(PaymentRequest request) {
+    try {
+        PaymentResult result = paymentService.process(request);
+        return new PaymentResponse(request.getTransactionId(), Status.SUCCESS, result);
+    } catch (PaymentException e) {
+        return new PaymentResponse(request.getTransactionId(), Status.FAILURE, e.getMessage());
+    }
+}
+```
+
+### Asynchronous Operation
+```java
+public BaseResponse submitTask(TaskRequest request) {
+    String taskId = taskService.submit(request);
+    return new TaskResponse(request.getTransactionId(), Status.PENDING, taskId);
+}
+
+public BaseResponse getTaskStatus(String taskId) {
+    TaskStatus taskStatus = taskService.getStatus(taskId);
+    Status status = switch (taskStatus) {
+        case QUEUED -> Status.PENDING;
+        case RUNNING -> Status.PROCESSING;
+        case FINISHED -> Status.COMPLETED;
+        case FAILED -> Status.ERROR;
+        case CANCELLED -> Status.CANCELLED;
+        case TIMED_OUT -> Status.TIMEOUT;
+    };
+    return new TaskStatusResponse(status, taskStatus.getProgress());
+}
+```
+
+### Error Creation
+```java
+ApplicationError error = new ApplicationErrorImpl(
+    "User account not found",
+    ApplicationErrorCodeImpl.RESOURCE_NOT_FOUND,
+    null
+);
+
+// Add diagnostic info later
+error.setNativeErrorText("SQLException: No rows returned for user_id=12345");
+```
+
+### Status Checking
+```java
+Status status = response.getStatus();
+
+if (status.isInProgress()) {
+    // Poll again later
+    scheduleStatusCheck(response.getTaskId());
+} else if (status.isSuccess()) {
+    // Process successful result
+    handleSuccess(response);
+} else if (status.isFailure()) {
+    // Handle error
+    handleError(response);
+}
+```
 
 ## Package Documentation
 
-- [com.rubensgomes.msbaselib](lib/src/main/java/com/rubensgomes/msbaselib/package-info.java): Core base types and foundational components
-- [com.rubensgomes.msbaselib.error](lib/src/main/java/com/rubensgomes/msbaselib/error/package-info.java): Error handling and error code management framework
-- [com.rubensgomes.msbaselib.error.impl](lib/src/main/java/com/rubensgomes/msbaselib/error/impl/package-info.java): Concrete implementations of error handling interfaces
+- [com.rubensgomes.msbaselib](lib/src/main/java/com/rubensgomes/msbaselib/package-info.java): Core base types
+- [com.rubensgomes.msbaselib.error](lib/src/main/java/com/rubensgomes/msbaselib/error/package-info.java): Error handling interfaces
+- [com.rubensgomes.msbaselib.error.impl](lib/src/main/java/com/rubensgomes/msbaselib/error/impl/package-info.java): Concrete implementations
 
-## Build and Development
+## Dependencies
 
-- [build.gradle.kts](lib/build.gradle.kts): Gradle build configuration with Java 21, Lombok, Jakarta EE, Spotless formatting, JUnit 5 testing, and Maven publishing setup.
-- [README.md](README.md): Project overview, basic Gradle commands, build instructions, testing, release workflow, and publishing process.
+- `jakarta.annotation-api` - Nullable annotations
+- `jakarta.validation-api` - Bean validation (@NotBlank, @NotNull)
+- `slf4j-api` - Logging facade
+- `lombok` - Boilerplate reduction (@Data, @Slf4j)
 
-## Key Features
+## Build Commands
 
-- Thread-safe, immutable enum-based designs
-- Comprehensive Javadoc documentation for all public APIs
-- Jakarta Bean Validation constraints for data integrity
-- Lombok annotations for boilerplate reduction
-- Integration examples for Spring Framework and Jakarta EE
-- Hierarchical error code naming convention for easy categorization
-- Support for monitoring, observability, and distributed tracing
-- Framework-agnostic design works with Spring, Jakarta EE, or standalone applications
+```bash
+./gradlew --info clean build    # Build project
+./gradlew --info clean test     # Run tests
+./gradlew :lib:spotlessApply    # Format code (Google Java Format)
+./gradlew --info jar            # Create JAR
+```
 
-## License
+## Publishing
 
-Licensed under the Apache License, Version 2.0. Copyright 2025 Rubens Gomes.
+Published to GitHub Packages. Requires `GITHUB_USER` and `GITHUB_TOKEN` environment variables.
 
 ## Optional
 
-- [gradle.properties](gradle.properties): Project properties including group, version, artifact ID, developer information, and repository URLs.
-- [settings.gradle.kts](settings.gradle.kts): Gradle settings for project structure and dependency management.
+- [build.gradle.kts](lib/build.gradle.kts): Gradle build configuration
+- [gradle.properties](gradle.properties): Project properties
+- [settings.gradle.kts](settings.gradle.kts): Gradle settings
