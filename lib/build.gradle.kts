@@ -286,7 +286,7 @@ tasks.register("debugInfo") {
         }
 
         // Environment variables (print only safe ones)
-        val safeEnv = listOf("MAVEN_REPO_USERNAME", "MAVEN_REPO_PASSWORD")
+        val safeEnv = listOf("GITHUB_USER", "GITHUB_TOKEN")
         println("Environment variables (safe subset):")
         safeEnv.forEach { key ->
             println(" - $key = ${System.getenv(key)}")
